@@ -1,16 +1,34 @@
 import random
 import tkinter as tk
 from tkinter import simpledialog, messagebox
+from hand_evaluation import find_winner
 
 # Constants
 SUITS = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
 RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+
+VALUE = {
+"2": 2,
+"3": 3,
+"4": 4,
+"5": 5,
+"6": 6,
+"7": 7,
+"8": 8,
+"9": 9,
+"10": 10,
+"J": 11,
+"Q": 12,
+"K": 13,
+"A": 14
+}
 
 # Card class
 class Card:
     def __init__(self, suit, rank):
         self.suit = suit
         self.rank = rank
+        self.value = VALUE[rank]
 
     def __str__(self):
         return f'{self.rank} of {self.suit}'
@@ -139,6 +157,8 @@ class PokerGame:
         # Start with the first active player for the new stage
         self.current_player_index = self.find_next_active_player_index(start_index=0)
 
+        return self.current_stage 
+    
     def find_next_active_player_index(self, start_index):
         for i in range(len(self.players)):
             index = (start_index + i) % len(self.players)
@@ -155,7 +175,8 @@ class PokerGame:
 
     def showdown(self):
         active_players = self.remaining_active_players()
-        winner = max(active_players, key=lambda p: sum(ord(c.rank) for c in p.hand))
+        # winner = max(active_players, key=lambda p: sum(VALUE[c.rank] for c in p.hand))
+        winner = find_winner(active_players, self.community_cards)
         winner.money += self.pot
         messagebox.showinfo("Showdown", f"{winner.name} wins the pot of ${self.pot}!")
         self.reset_for_new_round()

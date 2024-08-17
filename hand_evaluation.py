@@ -1,0 +1,46 @@
+from collections import Counter
+from itertools import combinations
+
+def get_hand_ranking(hand):
+    """Return the hand ranking and the sorted ranks for comparison."""
+    ranks = sorted([card.value for card in hand], reverse=True)
+    is_flush = len(set(card.suit for card in hand)) == 1
+    rank_counts = Counter(ranks)
+    is_straight = len(rank_counts) == 5 and (ranks[0] - ranks[-1] == 4)
+
+    if is_straight and is_flush:
+        return (8, ranks)  # Straight flush
+    if 4 in rank_counts.values():
+        return (7, ranks)  # Four of a kind
+    if 3 in rank_counts.values() and 2 in rank_counts.values():
+        return (6, ranks)  # Full house
+    if is_flush:
+        return (5, ranks)  # Flush
+    if is_straight:
+        return (4, ranks)  # Straight
+    if 3 in rank_counts.values():
+        return (3, ranks)  # Three of a kind
+    if list(rank_counts.values()).count(2) == 2:
+        return (2, ranks)  # Two pair
+    if 2 in rank_counts.values():
+        return (1, ranks)  # One pair
+    return (0, ranks)  # High card
+
+def best_hand(cards):
+    """Determine the best hand from given cards."""
+    best = max(combinations(cards, 5), key=get_hand_ranking)
+    return get_hand_ranking(best)
+
+def find_winner(players, community_cards):
+    """Return the player with the best hand."""
+    best_rank = (-1, [])
+    winner = None
+    
+    for player in players:
+        combined_cards = player.hand + community_cards
+        player_best_hand = best_hand(combined_cards)
+        if player_best_hand > best_rank:
+            best_rank = player_best_hand
+            winner = player
+    
+    return winner
