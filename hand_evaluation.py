@@ -1,6 +1,7 @@
 from collections import Counter
 from itertools import combinations
 import copy
+from deck import Deck
 
 def get_hand_ranking(hand):
     """Return the hand ranking and the sorted ranks for comparison."""
@@ -49,63 +50,36 @@ def find_winner(players, community_cards):
     
     return winners, reason
 
-# def calculate_win_probability(player_hand, community_cards, opponent_hands, num_simulations=1000):
-#     """Calculate the win probability of a given hand with community cards against multiple opponents."""
-#     wins = 0
-#     ties = 0
-#     deck = Deck()
-    
-#     # Remove the known cards from the deck (player's hand, community cards, and opponent hands)
-#     known_cards = player_hand + community_cards
-#     for opponent_hand in opponent_hands:
-#         known_cards += opponent_hand
-#     deck.remove(known_cards)
-    
-#     for _ in range(num_simulations):
-#         # Simulate remaining community cards
-#         remaining_cards = deck.draw(5 - len(community_cards))
-#         final_community_cards = community_cards + remaining_cards
-        
-#         # Calculate the best hand for the player
-#         player_best = best_hand(player_hand + final_community_cards)
-        
-#         # Calculate the best hands for all opponents
-#         opponent_bests = [best_hand(opponent_hand + final_community_cards) for opponent_hand in opponent_hands]
-        
-#         # Determine if the player's hand is the best
-#         if all(player_best > opponent_best for opponent_best in opponent_bests):
-#             wins += 1
-#         elif all(player_best == opponent_best for opponent_best in opponent_bests):
-#             ties += 1
-    
-#     # Return win probability as a percentage
-#     win_probability = wins / num_simulations
-#     tie_probability = ties / num_simulations
-#     return win_probability, tie_probability
-
-
-def calculate_win_probability(player_hand, initial_deck, community_cards, num_simulations=1000):
-    """Calculate the win probability of a given hand with community cards."""
+def calculate_win_probability(player_hand, community_cards, opponent_hands, num_simulations=1000):
+    """Calculate the win probability of a given hand with community cards against multiple opponents."""
     wins = 0
-
-    deck = copy.deepcopy(initial_deck)
+    ties = 0
     
     for _ in range(num_simulations):
+        deck = Deck()
+    
+        # Remove the known cards from the deck (player's hand, community cards, and opponent hands)
+        known_cards = player_hand + community_cards
+        for opponent_hand in opponent_hands:
+            known_cards += opponent_hand
+        deck.remove_cards(known_cards)
         # Simulate remaining community cards
-        remaining_cards = []
-        for i in range(5 - len(community_cards)):
-            remaining_cards = deck.deal_card()
+        remaining_cards = deck.draw(5 - len(community_cards))
         final_community_cards = community_cards + remaining_cards
         
-        # Simulate opponent's hand
-        opponent_hand = deck.draw(2)
-        
-        # Compare hands
+        # Calculate the best hand for the player
         player_best = best_hand(player_hand + final_community_cards)
-        opponent_best = best_hand(opponent_hand + final_community_cards)
         
-        if player_best > opponent_best:
+        # Calculate the best hands for all opponents
+        opponent_bests = [best_hand(opponent_hand + final_community_cards) for opponent_hand in opponent_hands]
+        
+        # Determine if the player's hand is the best
+        if all(player_best > opponent_best for opponent_best in opponent_bests):
             wins += 1
+        elif all(player_best == opponent_best for opponent_best in opponent_bests):
+            ties += 1
     
     # Return win probability as a percentage
-    return wins / num_simulations
+    win_probability = wins / num_simulations
+    tie_probability = ties / num_simulations
+    return win_probability, tie_probability

@@ -59,7 +59,7 @@ class PokerGame:
         for player in self.remaining_alive_players():
             player.receive_card(self.deck.deal_card())
             player.receive_card(self.deck.deal_card())
-
+    
     def deal_community_cards(self, number):
         for _ in range(number):
             self.community_cards.append(self.deck.deal_card())

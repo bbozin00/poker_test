@@ -19,6 +19,27 @@ class Deck:
     def deal_card(self):
         return self.cards.pop()
 
+    def draw(self, number):
+        cards = []
+        for i in range(number):
+            cards.append(self.deal_card())
+
+        return cards
+
+    def remove_cards(self, cards):
+        cards_left = []
+        for card in self.cards:
+            shouldAdd = True
+            for c in cards:
+                if card.rank == c.rank and card.suit == c.suit:
+                    shouldAdd = False
+                    break
+            if shouldAdd:
+                cards_left.append(card)
+        
+        self.cards = cards_left
+
+
 # Constants
 SUITS = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
 RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']

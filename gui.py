@@ -1,7 +1,7 @@
 from game import PokerGame
 from tkinter import simpledialog, messagebox
 import tkinter as tk
-
+from hand_evaluation import calculate_win_probability
 # GUI class
 class PokerGUI:
     def __init__(self, root):
@@ -63,11 +63,17 @@ class PokerGUI:
 
     def update_display(self):
         for i, player in enumerate(self.game.players):
+            opponent_hands = [p.hand for p in self.game.players if player.name != p.name]
+            win_ratio = " "
+            if len(player.hand) > 0:
+                win_ratio += str(calculate_win_probability(player.hand, self.game.community_cards, opponent_hands))
+
             self.players_labels[i].config(
                 text=f'{player.name}: ' + ', '.join(str(card) for card in player.hand) + f" | Money: ${player.money}" +
                      (" (Folded)" if player.folded else "") + (" [BB]" if i == self.game.big_blind_index else "") +
                      (" [SB]" if i == self.game.small_blind_index else "") + 
-                     (f" BET = ${player.current_bet}" if not player.folded and player.money > 0 else "")
+                     (f" BET = ${player.current_bet}" if not player.folded and player.money > 0 else "") +
+                     win_ratio
             )
 
         community_text = "Community Cards: " + ', '.join(str(card) for card in self.game.community_cards)
